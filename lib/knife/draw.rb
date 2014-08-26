@@ -29,36 +29,6 @@ module KnifeDraw
 
     banner "knife draw nodes [ENVIRONMENT]"
 
-    def env_prefix
-      @env_boxes ? "cluster" : "env_"
-    end
-
-    def environments
-      @environments ||= Hash.new {|hash, key|
-        hash[key] = graph.add_graph("#{env_prefix}#{key}", label: key)
-      }
-    end
-
-    def graph
-      @graph ||= GraphViz.new(:KnifeDraw, rankdir: :LR, strict: true)
-    end
-
-    def add_node(name, environment)
-      environments[environment.to_s].add_nodes(name, shape: :box3d, color: :green, style: :bold)
-    end
-
-    def add_role(name)
-      graph.add_nodes(name, shape: :component, color: :blue)
-    end
-
-    def add_runlist(name)
-      graph.add_nodes(name, shape: :note, color: :grey)
-    end
-
-    def draw!
-      graph.output png: "output.png", dot: "output.dot"
-    end
-
     def run
       environment = name_args.first if name_args.size > 0
 
@@ -69,22 +39,24 @@ module KnifeDraw
                         Chef::Node.list true
                       end
 
+      graph = ChefGraph.new
+
       nodes_by_name.each do |name, node|
-        node_box = add_node(name, node.chef_environment)
+        node_box = graph.draw_node(name, node.chef_environment)
         ui.msg "name: #{name} env: #{node.chef_environment}"
         node.roles.each do |role_name|
-          role_box = add_role(role_name)
-          graph.add_edge(node_box, role_box)
+          role_box = graph.draw_role(role_name)
+          graph.connect(node_box, role_box)
 
           role = Chef::Role.load(role_name)
           role.run_list.each do |run_list|
-            runlist_box = add_runlist run_list.to_s
-            graph.add_edge(role_box, runlist_box)
+            runlist_box = graph.draw_runlist run_list.to_s
+            graph.connect(role_box, runlist_box)
             ui.msg "\t\trunlist: #{run_list}"
           end
         end
       end
-      draw!
+      graph.draw!
     end
   end
 
@@ -94,5 +66,43 @@ module KnifeDraw
 
   class RoleDraw < DrawRoles
     banner "knife role draw"
+  end
+
+  class ChefGraph
+    attr_reader :graph
+
+    def initialize
+      @graph =  GraphViz.new(:KnifeDraw, rankdir: :LR, strict: true)
+    end
+
+    def env_prefix
+      @env_boxes ? "cluster" : "env_"
+    end
+
+    def environments
+      @environments ||= Hash.new {|hash, key|
+        hash[key] = graph.add_graph("#{env_prefix}#{key}", label: key)
+      }
+    end
+
+    def draw_node(name, environment)
+      environments[environment.to_s].add_nodes(name, shape: :box3d, color: :green, style: :bold)
+    end
+
+    def draw_role(name)
+      graph.add_nodes(name, shape: :component, color: :blue)
+    end
+
+    def draw_runlist(name)
+      graph.add_nodes(name, shape: :note, color: :grey)
+    end
+
+    def connect(source, target)
+      graph.add_edge(source, target)
+    end
+
+    def draw!
+      graph.output png: "output.png", dot: "output.dot"
+    end
   end
 end
