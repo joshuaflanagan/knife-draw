@@ -22,12 +22,12 @@ module KnifeDraw
     end
   end
 
-  class DrawRunlist < Chef::Knife
+  class DrawNodes < Chef::Knife
     deps do
       require 'graphviz'
     end
 
-    banner "knife draw run_lists [ENVIRONMENT]"
+    banner "knife draw nodes [ENVIRONMENT]"
 
     def env_prefix
       @env_boxes ? "cluster" : "env_"
@@ -86,5 +86,13 @@ module KnifeDraw
       end
       draw!
     end
+  end
+
+  class NodeDraw < DrawNodes
+    banner "knife node draw [ENVIRONMENT]"
+  end
+
+  class RoleDraw < DrawRoles
+    banner "knife role draw"
   end
 end
