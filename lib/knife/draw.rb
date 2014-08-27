@@ -32,24 +32,17 @@ module KnifeDraw
     def run
       environment = name_args.first if name_args.size > 0
 
-      nodes_by_name = if environment
-                        Chef::Node.list_by_environment environment, true
-                      else
-                        @env_boxes = true
-                        Chef::Node.list true
-                      end
+      graph = ChefGraph.new cluster_environments: environment.nil?
+      source = ChefServerSource.new
 
-      graph = ChefGraph.new
-
-      nodes_by_name.each do |name, node|
+      source.nodes.each do |name, node|
         node_box = graph.draw_node(name, node.chef_environment)
         ui.msg "name: #{name} env: #{node.chef_environment}"
-        node.roles.each do |role_name|
+        source.roles_for_node(node).each do |role_name|
           role_box = graph.draw_role(role_name)
           graph.connect(node_box, role_box)
 
-          role = Chef::Role.load(role_name)
-          role.run_list.each do |run_list|
+          source.runlist_for_role(role_name).each do |run_list|
             runlist_box = graph.draw_runlist run_list.to_s
             graph.connect(role_box, runlist_box)
             ui.msg "\t\trunlist: #{run_list}"
@@ -57,6 +50,30 @@ module KnifeDraw
         end
       end
       graph.draw!
+    end
+  end
+
+  class ChefServerSource
+    def nodes(environment = nil)
+      if environment
+        Chef::Node.list_by_environment environment, true
+      else
+        Chef::Node.list true
+      end
+    end
+
+    def roles_for_node(node)
+      node.roles
+    end
+
+    def runlist_for_role(role_name)
+      role_details[role_name].run_list
+    end
+
+    private
+
+    def role_details
+      @role_details ||= Chef::Role.list(true)
     end
   end
 
@@ -71,12 +88,13 @@ module KnifeDraw
   class ChefGraph
     attr_reader :graph
 
-    def initialize
+    def initialize(cluster_environments: false)
       @graph =  GraphViz.new(:KnifeDraw, rankdir: :LR, strict: true)
+      @cluster_environments = cluster_environments
     end
 
     def env_prefix
-      @env_boxes ? "cluster" : "env_"
+      @cluster_environments ? "cluster" : "env_"
     end
 
     def environments
