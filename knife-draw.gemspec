@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'knife/draw/version'
+require 'knife_draw/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "knife-draw"
-  spec.version       = Knife::Draw::VERSION
+  spec.version       = KnifeDraw::VERSION
   spec.authors       = ["Joshua Flanagan"]
   spec.email         = ["joshuaflanagan@gmail.com"]
   spec.summary       = %q{Draws pictures using your Chef data}
