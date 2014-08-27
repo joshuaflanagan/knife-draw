@@ -1,28 +1,25 @@
 # Knife::Draw
 
-TODO: Write a gem description
+Generates pictues of your Chef environment
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'knife-draw'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
 
     $ gem install knife-draw
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+knife draw nodes            # all environments
+knife draw nodes production # only nodes in production environment
+```
+
+```
+knife draw roles
+```
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/knife-draw/fork )
+1. Fork it ( https://github.com/joshuaflanagan/knife-draw/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
