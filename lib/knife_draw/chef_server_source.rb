@@ -8,6 +8,10 @@ module KnifeDraw
       end
     end
 
+    def roles
+      Chef::Role.list true
+    end
+
     def roles_for_node(node)
       node.roles
     end

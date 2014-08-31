@@ -4,18 +4,21 @@ module KnifeDraw
       require 'graphviz'
     end
 
-    banner "knife draw roles [ENVIRONMENT]"
+    banner "knife draw roles"
 
     def run
-      environment = name_args.first if name_args.size > 0
-      nodes_by_name = if environment
-                        Chef::Node.list_by_environment environment, true
-                      else
-                        Chef::Node.list true
-                      end
-      nodes_by_name.each do |name, node|
-        ui.msg "name: #{name} node: #{node}"
+      graph = ChefGraph.new
+      source = ChefServerSource.new
+      source.roles.each do |role_name, role|
+        ui.msg "name: #{role_name}"
+        role_box = graph.draw_role(role_name)
+        source.runlist_for_role(role_name).each do |run_list|
+          runlist_box = graph.draw_runlist run_list.to_s
+          graph.connect(role_box, runlist_box)
+          ui.msg "\t\trunlist: #{run_list}"
+        end
       end
+      graph.draw!
     end
   end
 

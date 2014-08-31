@@ -1,3 +1,5 @@
+require 'graphviz'
+
 module KnifeDraw
   class ChefGraph
     attr_reader :graph
