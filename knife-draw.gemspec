@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["joshuaflanagan@gmail.com"]
   spec.summary       = %q{Draws pictures using your Chef data}
   spec.description   = %q{Generates GraphViz diagrams based on your Chef environment}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/joshuaflanagan/knife-draw"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
