@@ -12,7 +12,7 @@ module KnifeDraw
       graph = ChefGraph.new cluster_environments: environment.nil?
       source = ChefServerSource.new
 
-      source.nodes.each do |name, node|
+      source.nodes(environment).each do |name, node|
         node_box = graph.draw_node(name, node.chef_environment)
         ui.msg "name: #{name} env: #{node.chef_environment}"
         source.roles_for_node(node).each do |role_name|
