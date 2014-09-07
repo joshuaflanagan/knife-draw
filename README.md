@@ -1,6 +1,6 @@
-# Knife::Draw
+# Knife Draw plugin for Chef
 
-Generates pictues of your Chef environment
+Generates pictures of your Chef environment
 
 ## Installation
 
@@ -9,12 +9,25 @@ Generates pictues of your Chef environment
 ## Usage
 
 ```
-knife draw nodes            # all environments
-knife draw nodes production # only nodes in production environment
+knife draw nodes               # creates output.png image of all environments
+knife draw nodes -E production # only nodes in production environment
+knife draw nodes output.dot    # creates output in DOT format
 ```
 
 ```
-knife draw roles
+knife draw roles              # creates output.png image
+knife draw roles myroles.jpg  # creates myroles.jpg image
+```
+
+The output file format is inferred based on the file extension.
+Supports all formatted supported by the Graphviz `dot` command.
+
+All commands also support the command line options:
+
+```
+-V    verbose output. Output the Chef data used to build the drawing.
+--color     Use color in the generated image (default)
+--no-color  Do not use color in the generated image
 ```
 
 ## Contributing
