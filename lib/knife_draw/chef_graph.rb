@@ -41,9 +41,9 @@ module KnifeDraw
       graph.add_edge(source, target, color: EDGE_COLOR)
     end
 
-    def draw!(outputfile="output.png")
+    def draw!(outputfile)
       filename=outputfile
-      format = File.extname(filename)[1..-1]
+      format = File.extname(filename)[1..-1] || :png
       graph.output format => filename
     end
   end

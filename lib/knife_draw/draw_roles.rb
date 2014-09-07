@@ -4,9 +4,10 @@ module KnifeDraw
       require 'graphviz'
     end
 
-    banner "knife draw roles"
+    banner "knife draw roles [FILENAME]"
 
     def run
+      filename = name_args.size > 0 ? name_args.first : "output.png"
       graph = ChefGraph.new
       source = ChefServerSource.new
       source.roles.each do |role_name, role|
@@ -18,7 +19,7 @@ module KnifeDraw
           ui.msg "\t\trunlist: #{run_list}"
         end
       end
-      graph.draw!
+      graph.draw! filename
     end
   end
 

@@ -4,9 +4,10 @@ module KnifeDraw
       require 'graphviz'
     end
 
-    banner "knife draw nodes"
+    banner "knife draw nodes [FILENAME]"
 
     def run
+      filename = name_args.size > 0 ? name_args.first : "output.png"
       environment = config[:environment]
 
       graph = ChefGraph.new cluster_environments: environment.nil?
@@ -26,7 +27,7 @@ module KnifeDraw
           end
         end
       end
-      graph.draw!
+      graph.draw! filename
     end
   end
 
