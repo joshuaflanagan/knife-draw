@@ -11,6 +11,8 @@ module KnifeDraw
     def run
       filename = name_args.size > 0 ? name_args.first : "output.png"
       graph = ChefGraph.new
+      graph.add_formatter(ColorFormatter.new) if config[:color]
+
       source = ChefServerSource.new
       source.roles.each do |role_name, role|
         verbose_out "name: #{role_name}"

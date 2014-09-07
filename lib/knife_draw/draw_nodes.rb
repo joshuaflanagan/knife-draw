@@ -13,6 +13,8 @@ module KnifeDraw
       environment = config[:environment]
 
       graph = ChefGraph.new cluster_environments: environment.nil?
+      graph.add_formatter(ColorFormatter.new) if config[:color]
+
       source = ChefServerSource.new
 
       source.nodes(environment).each do |name, node|

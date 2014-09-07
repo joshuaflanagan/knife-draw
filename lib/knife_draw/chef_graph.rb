@@ -4,15 +4,17 @@ module KnifeDraw
   class ChefGraph
     attr_reader :graph
 
-    NODE_COLOR = "#66c2a5"
-    ROLE_COLOR = "#8da0cb"
-    RUNLIST_COLOR = "#fc8d62"
-    EDGE_COLOR = "gray52" #"#bebada"
-    FONT_NAME = "Helvetica"
-
     def initialize(cluster_environments: false)
-      @graph =  GraphViz.new(:KnifeDraw, rankdir: :LR, strict: true, fontname: FONT_NAME)
+      @graph =  GraphViz.new(:KnifeDraw,
+                             rankdir: :LR,
+                             strict: true,
+                             fontname: DefaultFormatter::FONT_NAME)
       @cluster_environments = cluster_environments
+      @formatters = [DefaultFormatter.new]
+    end
+
+    def add_formatter(formatter)
+      @formatters << formatter
     end
 
     def env_prefix
@@ -21,24 +23,43 @@ module KnifeDraw
 
     def environments
       @environments ||= Hash.new {|hash, key|
-        hash[key] = graph.add_graph("#{env_prefix}#{key}", label: key, fontname: FONT_NAME)
+        new_env = graph.add_graph("#{env_prefix}#{key}", label: key)
+        @formatters.each{|f| f.environments(new_env)}
+        hash[key] = new_env
       }
     end
 
     def draw_node(name, environment)
-      environments[environment.to_s].add_nodes(name, shape: :box3d, fillcolor: NODE_COLOR, style: :filled, fontname: FONT_NAME)
+      node = environments[environment.to_s].add_nodes(name)
+      @formatters.each{|f|
+        f.all_shapes(node)
+        f.nodes(node)
+      }
+      node
     end
 
     def draw_role(name)
-      graph.add_nodes(name, shape: :component, fillcolor: ROLE_COLOR, style: :filled, fontname: FONT_NAME)
+      role = graph.add_nodes(name)
+      @formatters.each{|f|
+        f.all_shapes(role)
+        f.roles(role)
+      }
+      role
     end
 
     def draw_runlist(name)
-      graph.add_nodes(name, shape: :note, fillcolor: RUNLIST_COLOR, style: :filled, fontname: FONT_NAME)
+      runlist = graph.add_nodes(name)
+      @formatters.each{|f|
+        f.all_shapes(runlist)
+        f.runlists(runlist)
+      }
+      runlist
     end
 
     def connect(source, target)
-      graph.add_edge(source, target, color: EDGE_COLOR)
+      edge = graph.add_edge(source, target)
+      @formatters.each{|f| f.arrows(edge) }
+      edge
     end
 
     def draw!(outputfile)
